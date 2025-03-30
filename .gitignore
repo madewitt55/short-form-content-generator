@@ -2,5 +2,6 @@
 __pycache__
 .env
 
-# Audio files for voice cloning
+# Character-specific resources
 character_voices
+character_qualities.py
