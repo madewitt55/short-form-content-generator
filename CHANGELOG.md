@@ -46,3 +46,23 @@ combining multiple sources of mp3 data to form a conversation between two charac
 - GenerateException function
 - character_qualities.py, because it is currently unused and I will replace it
 with a JSON file when it is needed
+
+## [0.3.0] - 2025-04-01
+
+### Added
+- Added members audio_base64, character_start_times_seconds,
+character_end_times_seconds to speech class
+- Added member function GetWordDurations to speech class, used to get
+any and all caption data
+- Video class (using moviepy), which overlays the mp3 audio over a randomly 
+selected background video from background_videos folder
+- Video class saves both the mp3 and mp4 files to a new folder inside the videos
+folder
+- Settings.json, a file to set basic settings for the application; currently it
+has font, font-size, use-captions, caption-style
+
+### Changed
+- Minor changes to dialogue class
+
+### Removed
+- Audio folder (previously untracked)

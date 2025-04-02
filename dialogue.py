@@ -21,7 +21,8 @@ class Dialogue:
         self.voice1 = voice1
         self.voice2 = voice2
         self.script = script.split(SPEAKER_CHANGE)
-        self.mp3_data = b""
+        
+        self.CreateAllSpeech() # Create speech objects for each line
 
     def CreateAllSpeech(self):
         '''
@@ -30,21 +31,39 @@ class Dialogue:
         Returns:
             void
         '''
+        self.speech_lines = []
         current = self.voice1
+
+        # Create and store speech object for each line
         for line in self.script:
-            self.mp3_data += current.CreateSpeech(line).CompressToMp3()
+            speech = current.CreateSpeech(line)
+            # Increment character time values to come after all previous clips
+            # This is used for caption timing
+            if (len(self.speech_lines)):
+                offset = float(self.speech_lines[-1].character_end_times[-1])
+                for i in range(len(speech.character_start_times)):
+                    speech.character_start_times[i] += offset
+                    speech.character_end_times[i] += offset
+                    
+            self.speech_lines.append(speech)
+            
             # Flip voice
             if (current == self.voice1):
                 current = self.voice2
             else:
                 current = self.voice1
 
-    def CreateMp3(self):
+    def CreateMp3(self, output_path):
         '''
-        Saves entire conversation's mp3data to a file
-        Args: N/A
+        Saves entire conversation's mp3 data to a file
+        Args:
+            output_path (string): Where mp3 file will be saved
         Returns:
             void
         '''
-        with open("./audio/convo.mp3", "wb") as mp3_file:
-            mp3_file.write(self.mp3_data)
+
+        mp3_data = b""
+        for speech in self.speech_lines:
+            mp3_data += speech.CompressToMp3()
+        with open(output_path, "wb") as mp3_file:
+            mp3_file.write(mp3_data)

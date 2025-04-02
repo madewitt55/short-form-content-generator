@@ -13,11 +13,24 @@ class Speech:
             void
         '''
         
-        self.text = ''.join(speech['alignment']['characters'])
+        self.characters = speech['alignment']['characters']
         self.voice = voice
+        self.audio_base64 = speech['audio_base64']
         self.character_start_times = speech['alignment']['character_start_times_seconds']
         self.character_end_times = speech['alignment']['character_end_times_seconds']
-        
+
+    def GetWordDurations(self):
+        words = []
+        start = 0
+        for i in range(len(self.characters) + 1):
+            if (i == len(self.characters) or self.characters[i] == ' '):
+                words.append({
+                    'word': ''.join(self.characters[start:i]),
+                    'start': self.character_start_times[start],
+                    'end': self.character_end_times[i-1]
+                })
+                start = i
+        return words
     
     def CompressToMp3(self):
         '''

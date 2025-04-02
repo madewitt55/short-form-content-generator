@@ -2,7 +2,6 @@ import requests
 from speech import Speech
 import elevenlabs as el
 
-
 class Voice:
     '''A character's voice'''
 
