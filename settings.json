@@ -2,5 +2,6 @@
     "font": "Impact",
     "font-size": 215,
     "use-captions": true,
+    "use-images": true,
     "caption-style": "capital"
 }

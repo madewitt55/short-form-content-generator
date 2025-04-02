@@ -66,3 +66,17 @@ has font, font-size, use-captions, caption-style
 
 ### Removed
 - Audio folder (previously untracked)
+
+## [0.3.1] - 2025-04-02
+
+### Changed
+- GetVoices function to return elevenlabs response data rather than creating
+an object for each voice
+- Commented out unfinished block to add character images to video in Video class
+
+### Added
+- Select menu for selecting the two voices for the script
+- character_settings.json for setting custom names and image paths for voices
+using their voice id (printed during the menu). More settings will come to this
+file in the future
+- character_images folder for storing character images

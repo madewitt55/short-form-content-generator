@@ -1,4 +1,4 @@
-from moviepy.editor import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip, ImageClip
 import random
 import os
 import json
@@ -30,10 +30,10 @@ class Video:
         self.video = VideoFileClip(os.path.join('./background_videos',
             random.choice(os.listdir('./background_videos'))))
         
-        self.CompileVideo(settings['use-captions'])
+        self.CompileVideo(settings['use-captions'], settings['use-images'])
         self.SaveVideo(os.path.join(self.folder_path, f'{self.title}.mp4'))
         
-    def CompileVideo(self, with_captions):
+    def CompileVideo(self, with_captions, with_images):
         '''
         Overlays audio onto background video, and optionally burns captions
         Args:
@@ -58,6 +58,21 @@ class Video:
                     .set_duration(word['end'] - word['start'])
                     captions.append(caption)
             self.video = CompositeVideoClip([self.video] + captions)
+
+        '''
+        if (with_images):
+            img = './character_images/jesse_pinkman'
+            position = 'right'
+            images = []
+            for speech in self.dialogue.speech_lines:
+                timing = speech.GetWordDurations()
+                image = (ImageClip(img)
+                    .set_duration(speech[-1]['end'])  # Show for 3 seconds
+                    .set_start(speech[0]['start'])     # Start at 3s
+                    .set_position(position)  # Positioning
+                )
+             '''   
+
 
     def SaveVideo(self, output_path):
         '''

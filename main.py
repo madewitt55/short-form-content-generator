@@ -9,29 +9,59 @@ from moviepy.editor import VideoFileClip, AudioFileClip
 def GetVoices():
     '''
     Fetches and returns a user's available voices
-    Args: N/A
+    Args:
+        None
+
     Returns:
-        [Voice]: Array of Voice objects
+        Array of ElevenLabs response voice models
     '''
 
     response = requests.get(el.BASE_URL + "/v2/voices", 
         headers=el.HEADERS)
     response.raise_for_status() # Throws error if status 4xx or 5xx
-    voices = []
-    for v in response.json()['voices']:
-        voices.append(Voice(v))
-    return voices
+    return response.json()['voices']
 
 def Main():
     if (not os.getenv('ELEVEN_LABS_API_KEY')):
-        return print('API key not found')
+        raise ValueError('API key not found')
     try:
         voices = GetVoices()
-        if (len(voices)):
-            voice1 = voices[43]
-            voice2 = voices[42]
-            d = Dialogue(voice1, voice2, "hello mr white how are you today?/I am doing amazing jesse!")
-            v = Video('new', d)
+        if (len(voices) < 2):
+            raise ValueError(f'{len(voices)} voices found. At least 2 voices'
+                'are required to use this script.')
+        
+        print('========== Cloned Voices ==========')
+        for i in range(len(voices)):
+            if (voices[i]['category'] == 'cloned'):
+                print(f'{i}: {voices[i]['name']}')
+            else:
+                break
+
+        if (i >= 1):
+            choice = input('\nShow non-cloned voices? (Y/N)')
+        if (choice.upper() == 'Y' or i < 1):
+            print('\n========== Standard Voices ==========')
+            for j in range(i, len(voices)):
+                print(f'{j}: {voices[j]['name']}')
+
+        choice = 0
+        voice1 = None
+        voice2 = None
+        while (not voice1 or not voice2):
+            choice = int(input('Select voice: '))
+            if (choice < 0 or choice >= len(voices)):
+                print('INVALID INPUT')
+            elif (voice1 == None):
+                voice1 = Voice(voices[choice])
+                print(f'Voice 1 ID: {voice1.voice_id}')
+            else:
+                voice2 = Voice(voices[choice])
+                print(f'Voice 2 ID: {voice2.voice_id}')
+
+        print(voice1.name)
+        print(voice2.name)
+                
+
 
     except requests.exceptions.HTTPError as e:
         # Failed with status [status]: [message]

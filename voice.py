@@ -1,6 +1,11 @@
 import requests
 from speech import Speech
 import elevenlabs as el
+import json
+
+# Import character settings from settings.json
+with open("character_settings.json", "r") as file:
+    character_settings = json.load(file)
 
 class Voice:
     '''A character's voice'''
@@ -18,11 +23,14 @@ class Voice:
         '''
         
         self.voice_id = voice['voice_id']
-        self.name = voice['name']
 
-        '''self.voice_lines = cq.voice_lines.get(self.name)
-        self.traits = cq.traits.get(self.name)
-        self.nicknames = cq.nicknames.get(self.name)'''
+        if (character_settings.get(self.voice_id, {}).get('name')):
+            # Load user-defined custom name
+            self.name = character_settings[self.voice_id]['name']
+        else:
+            self.name = voice['name']
+
+        self.image_path = character_settings.get(self.voice_id, {}).get('image_path')
 
     def CreateSpeech(self, text):
         '''
