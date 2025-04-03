@@ -3,12 +3,11 @@ SPEAKER_CHANGE = '/' # Char in script string that indicates speaker change
 class Dialogue:
     '''A conversation between two characters'''
     
-    def __init__(self, voice1, voice2, script):
+    def __init__(self, voices, script):
         '''
         Constructs a new conversation
         Args:
-            voice1 (voice): Voice of the first character
-            voice2 (voice): Voice of the second character
+            voices [Voice]: Array of two voices whom will read the script
             script (string): Script that the two characters follow in their
             speech
         Returns:
@@ -18,8 +17,7 @@ class Dialogue:
             raise ValueError('Unable to construct dialogue object due to invalid'
             ' script')
         
-        self.voice1 = voice1
-        self.voice2 = voice2
+        self.voices = voices
         self.script = script.split(SPEAKER_CHANGE)
         
         self.CreateAllSpeech() # Create speech objects for each line
@@ -32,11 +30,11 @@ class Dialogue:
             void
         '''
         self.speech_lines = []
-        current = self.voice1
+        current_voice = 0
 
         # Create and store speech object for each line
         for line in self.script:
-            speech = current.CreateSpeech(line)
+            speech = self.voices[current_voice].CreateSpeech(line)
             # Increment character time values to come after all previous clips
             # This is used for caption timing
             if (len(self.speech_lines)):
@@ -48,10 +46,7 @@ class Dialogue:
             self.speech_lines.append(speech)
             
             # Flip voice
-            if (current == self.voice1):
-                current = self.voice2
-            else:
-                current = self.voice1
+            current_voice = current_voice ^ 1
 
     def CreateMp3(self, output_path):
         '''

@@ -80,3 +80,12 @@ an object for each voice
 using their voice id (printed during the menu). More settings will come to this
 file in the future
 - character_images folder for storing character images
+
+## [0.4.0] - 2025-04-02
+
+### Added
+- Character images appearing during their respective dialogue
+- Input prompt for user to create their own dialogue
+
+### Changed
+- Moved menu to a function for readability

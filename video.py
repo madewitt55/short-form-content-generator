@@ -1,4 +1,10 @@
-from moviepy.editor import VideoFileClip, AudioFileClip, TextClip, CompositeVideoClip, ImageClip
+from moviepy.editor import (
+    VideoFileClip, 
+    AudioFileClip, 
+    TextClip, 
+    ImageClip, 
+    CompositeVideoClip)
+from moviepy.video.fx.resize import resize
 import random
 import os
 import json
@@ -11,6 +17,7 @@ class Video:
     def __init__(self, title, dialogue):
         '''
         Constructs a new video
+
         Args:
             title (string): Title of the video
             dialogue (Dialogue): Dialogue object that is the base of the video
@@ -30,14 +37,17 @@ class Video:
         self.video = VideoFileClip(os.path.join('./background_videos',
             random.choice(os.listdir('./background_videos'))))
         
-        self.CompileVideo(settings['use-captions'], settings['use-images'])
+        self.CompileVideo()
         self.SaveVideo(os.path.join(self.folder_path, f'{self.title}.mp4'))
         
-    def CompileVideo(self, with_captions, with_images):
+    def CompileVideo(self):
         '''
-        Overlays audio onto background video, and optionally burns captions
+        Overlays audio onto background video, and optionally burns captions and
+        displays character images
+
         Args:
-            with_captions (boolean): Whether or not captions should be burnt
+            None
+
         Returns:
             void
         '''
@@ -45,40 +55,46 @@ class Video:
         self.video = self.video.set_audio(self.audio) # Overlay audio
         self.video = self.video.subclip(0, self.audio.duration) # Trim video to length of audio
 
-        if (with_captions):
-            captions = []
+        captions = []
+        images = []
+        if (settings['use-images']):
+            current_voice = 0
+            position = (self.dialogue.voices[current_voice].image_position, 'bottom')
+            for speech in self.dialogue.speech_lines:
+                timing = speech.GetWordDurations()
+                image = (ImageClip(self.dialogue.voices[current_voice].image_path)
+                    .set_duration(timing[-1]['end'] - timing[0]['start'])
+                    .set_start(timing[0]['start']) 
+                    .set_position((position))
+                    .resize(width = 0.6 * self.video.size[0])
+                )
+                images.append(image)
+                
+                # Flip voice (character)
+                current_voice = current_voice ^ 1
+                position = (self.dialogue.voices[current_voice].image_position, 'bottom')
+
+        if (settings['use-captions']):
             for speech in self.dialogue.speech_lines:
                 for word in speech.GetWordDurations():
                     caption = TextClip(word['word'].upper(), 
                         fontsize=settings['font-size'], 
                         color="white", 
                         font=settings['font'])\
-                    .set_position(("center", "bottom"))\
+                    .set_position('center')\
                     .set_start(word['start'])\
                     .set_duration(word['end'] - word['start'])
                     captions.append(caption)
-            self.video = CompositeVideoClip([self.video] + captions)
-
-        '''
-        if (with_images):
-            img = './character_images/jesse_pinkman'
-            position = 'right'
-            images = []
-            for speech in self.dialogue.speech_lines:
-                timing = speech.GetWordDurations()
-                image = (ImageClip(img)
-                    .set_duration(speech[-1]['end'])  # Show for 3 seconds
-                    .set_start(speech[0]['start'])     # Start at 3s
-                    .set_position(position)  # Positioning
-                )
-             '''   
-
+        
+        self.video = CompositeVideoClip([self.video] + images + captions)
 
     def SaveVideo(self, output_path):
         '''
         Saves the video as an mp4 file at the specifed path
+
         Args:
             output_path (string): Where the file will be saved
+            
         Returns:
             void
         '''

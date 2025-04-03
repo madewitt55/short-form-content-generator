@@ -6,9 +6,11 @@ class Speech:
     def __init__(self, voice, speech):
         '''
         Constructs a new segment of speech
+
         Args:
             voice (Voice): Voice dictating the speech
             speech (dict): ElevenLabs API response speech model
+            
         Returns:
             void
         '''
@@ -34,8 +36,11 @@ class Speech:
     
     def CompressToMp3(self):
         '''
-        Decodes a base64 string into mp3 data
-        Args: N/A
+        Decodes a base64 string into mp3 data and returns it
+
+        Args:
+            None
+
         Returns:
             byte string: byte string containing the mp3 data
         '''
