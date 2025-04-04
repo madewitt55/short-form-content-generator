@@ -105,3 +105,13 @@ due to too many individual captions on the video
 ### Fixed
 - Crashing issue related to too many TextClips (captions) on longer videos, by
 implementing GetCaptions
+
+## [0.4.2] - 2025-04-04
+
+### Fixed
+- Captions overflowing for long phrases
+- Trailing space character that threw captions off center
+
+### Added
+- Static method MaxTextLength to Video class, used for calculating when to push
+caption words to a new line

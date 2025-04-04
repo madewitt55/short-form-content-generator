@@ -40,6 +40,24 @@ class Video:
         self.CompileVideo()
         self.SaveVideo(os.path.join(self.folder_path, f'{self.title}.mp4'))
 
+    @staticmethod
+    def MaxTextLength(width, font_size, avg_char_ratio = 0.6):
+        '''
+        Estimates the max number of characters that will fit inside a given length
+        of pixels
+
+        Args:
+            width (int): The width of the container (pixels)
+            font_size (int): The size of the font (pixels)
+            avg_char_ratio (float): Average width of a character in a font (0.6 is 
+            a safe default value)
+
+        Returns:
+            length (int): Max length of text that can span the container 
+            (number of characters)
+        '''
+        return int(width / (font_size * avg_char_ratio))
+
     def GenerateCaptions(self, speech, caption_length):
         '''
         Returns an array of dicts containing caption text, start time,
@@ -61,7 +79,13 @@ class Video:
         start = 0
         text = ''
         for i in range(len(words)):
-            text += words[i]['text'] + ' '
+            last_line = text.split('\n')[-1]
+            # If caption will take up more than 90% of screen, begin new line
+            if (i and len(last_line + words[i]['text']) > 
+                self.MaxTextLength(self.video.size[0] * 0.9, settings['font-size'])):
+                text += '\n'
+            text += words[i]['text']
+            if (i != len(words) - 1): text += ' ' # Add space on every word but last
             if (i - start == caption_length - 1 or i == len(words) - 1):
                 captions.append({
                     'text': text,
