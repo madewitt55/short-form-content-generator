@@ -7,5 +7,6 @@ character_voices
 character_qualities.py
 
 # Output folder for created videos
+background_videos/*
 videos/*
 character_images/*

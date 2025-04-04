@@ -1,7 +1,10 @@
 {
     "font": "Impact",
-    "font-size": 185,
+    "font-size": 135,
     "use-captions": true,
     "use-images": true,
-    "caption-style": "capital"
+    "caption-style": "capital",
+    "words-per-caption": 3,
+    "caption-position": "center",
+    "caption-color": "white"
 }

@@ -29,6 +29,7 @@ class Dialogue:
         Returns:
             void
         '''
+        
         self.speech_lines = []
         current_voice = 0
 

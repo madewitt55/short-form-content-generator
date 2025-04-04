@@ -4,6 +4,11 @@ from voice import Voice
 import elevenlabs as el
 from dialogue import Dialogue
 from video import Video
+import json
+
+# Import character settings from character_settings.json
+with open("character_settings.json", "r") as file:
+    character_settings = json.load(file)
 
 def GetVoices():
     '''
@@ -35,7 +40,11 @@ def Menu(voices):
     print('========== Cloned Voices ==========')
     for i in range(len(voices)):
         if (voices[i]['category'] == 'cloned'):
-            print(f'{i}: {voices[i]['name']}')
+            print(f'{i}: {voices[i]['name']}', end='')
+            if (character_settings.get(voices[i]['voice_id'], {}).get('name')):
+                print(f' ({character_settings[voices[i]['voice_id']]['name']})')
+            else:
+                print('')
         else:
             break
 
@@ -47,6 +56,10 @@ def Menu(voices):
         print('\n========== Standard Voices ==========')
         for j in range(i, len(voices)):
             print(f'{j}: {voices[j]['name']}')
+            if (character_settings.get(voices[j]['voice_id'], {}).get('name')):
+                print(f' ({character_settings[voices[j]['voice_id']]['name']})')
+            else:
+                print('')
 
     choice = 0
     selected_voices = []
@@ -78,17 +91,26 @@ def Main():
                 'are required to use this script.')
         
         selected_voices = Menu(voices) # User selects two voices from menu
+        #d = Dialogue(selected_voices, 'Testing testing 123 hello hello hello hi/hello')
+        #v = Video('helloworld', d)
+
+        #print(v.GetCaptions(v.dialogue.speech_lines[0], 3))
 
         #selected_voices = [Voice(voices[53]), Voice(voices[56])]
 
+        video_title = ''
+        while (os.path.exists(os.path.join(os.getcwd(), f'videos/{video_title}')) or
+               len(video_title) < 3 or len(video_title) > 25):
+            video_title = input('Enter video title: ')
+    
         script = input('Input a script'
-        '(character breaks are indicated by forward slashes):\n')
+            '(character breaks are indicated by forward slashes):\n')
         d = Dialogue(selected_voices, script)
-        v = Video('flights', d)
+        v = Video(video_title, d)
 
     # API response with status code 4xx or 5xx
     except requests.exceptions.HTTPError as e:
-        # Failed with status [status]: [message]
+        # Failed with status {status}: {message}
         return print(f'Failed with status {e.response.status_code}:'
         f' {e.response.json()['detail']['message']}')
     except NameError as e:

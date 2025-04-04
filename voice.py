@@ -3,7 +3,7 @@ from speech import Speech
 import elevenlabs as el
 import json
 
-# Import character settings from settings.json
+# Import character settings from character_settings.json
 with open("character_settings.json", "r") as file:
     character_settings = json.load(file)
 

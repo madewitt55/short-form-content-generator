@@ -89,3 +89,19 @@ file in the future
 
 ### Changed
 - Moved menu to a function for readability
+
+## [0.4.1] - 2025-04-03
+
+### Changed
+- Menu will print voice names as well as user set names in character settings
+(if set)
+
+### Added
+- GetCaptions function to Video class, allowing user to specify (in settings.json),
+how many words go into each caption. This was implemented to prevent crashing
+due to too many individual captions on the video
+- Even more caption customization to settings.json
+
+### Fixed
+- Crashing issue related to too many TextClips (captions) on longer videos, by
+implementing GetCaptions

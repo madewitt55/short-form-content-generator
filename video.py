@@ -39,6 +39,38 @@ class Video:
         
         self.CompileVideo()
         self.SaveVideo(os.path.join(self.folder_path, f'{self.title}.mp4'))
+
+    def GenerateCaptions(self, speech, caption_length):
+        '''
+        Returns an array of dicts containing caption text, start time,
+        and end time (seconds), given word timing data and desired caption
+        length
+
+        Args:
+            speech (Speech): Speech object to generate captions for
+            caption_length (int): Length of desired captions (number of words)
+
+        Returns:
+            [dict]: Array of dicts with keys: text, start, and end
+        '''
+        words = speech.GetWordDurations()
+        if caption_length == 1:
+            return words
+        
+        captions = []
+        start = 0
+        text = ''
+        for i in range(len(words)):
+            text += words[i]['text'] + ' '
+            if (i - start == caption_length - 1 or i == len(words) - 1):
+                captions.append({
+                    'text': text,
+                    'start': words[start]['start'],
+                    'end': words[i]['end']
+                })
+                start = i + 1
+                text = ''
+        return captions        
         
     def CompileVideo(self):
         '''
@@ -55,7 +87,6 @@ class Video:
         self.video = self.video.set_audio(self.audio) # Overlay audio
         self.video = self.video.subclip(0, self.audio.duration) # Trim video to length of audio
 
-        captions = []
         images = []
         if (settings['use-images']):
             current_voice = 0
@@ -74,16 +105,17 @@ class Video:
                 current_voice = current_voice ^ 1
                 position = (self.dialogue.voices[current_voice].image_position, 'bottom')
 
+        captions = []
         if (settings['use-captions']):
             for speech in self.dialogue.speech_lines:
-                for word in speech.GetWordDurations():
-                    caption = TextClip(word['word'].upper(), 
+                for word in self.GenerateCaptions(speech, settings['words-per-caption']):
+                    caption = (TextClip(word['text'].upper(), 
                         fontsize=settings['font-size'], 
-                        color="white", 
-                        font=settings['font'])\
-                    .set_position('center')\
-                    .set_start(word['start'])\
-                    .set_duration(word['end'] - word['start'])
+                        color=settings['caption-color'], 
+                        font=settings['font'])
+                        .set_position(settings['caption-position'])
+                        .set_start(word['start'])
+                        .set_duration(word['end'] - word['start']))
                     captions.append(caption)
         
         self.video = CompositeVideoClip([self.video] + images + captions)
@@ -98,4 +130,4 @@ class Video:
         Returns:
             void
         '''
-        self.video.write_videofile(output_path)
+        self.video.write_videofile(output_path, threads=12)
